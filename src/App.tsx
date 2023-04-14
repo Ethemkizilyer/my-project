@@ -30,9 +30,12 @@ function App() {
     const dispatch = useDispatch<AppDispatch>();
 
 
-      const { isLoading, isError, data } = useQuery("users", fetchUsers);
+      const { isLoading, isError, data } = useQuery<User[]>(
+        "users",
+        fetchUsers
+      );
 
-      if (isLoading) {
+      if (isLoading || !data) {
         return <div>Loading users...</div>;
       }
 
