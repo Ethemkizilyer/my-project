@@ -1,35 +1,66 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "./app/store";
+import {
+  decrement,
+  increment,
+  incrementByAmount,
+  reset,
+} from "./features/counterSlice";
+import { useQuery } from "react-query";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+async function fetchUsers(): Promise<User[]> {
+  const response = await fetch("https://jsonplaceholder.typicode.com/users");
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  return response.json();
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
+    const count = useSelector((state: RootState) => state.counter.value);
+    const dispatch = useDispatch<AppDispatch>();
 
+
+      const { isLoading, isError, data } = useQuery("users", fetchUsers);
+
+      if (isLoading) {
+        return <div>Loading users...</div>;
+      }
+
+      if (isError) {
+        return <div>Error fetching users</div>;
+      }
   return (
     <div className="App">
+      <div>{count}</div>
+      <button onClick={() => dispatch(increment())}>Artır</button>
+      <button onClick={() => dispatch(decrement())}>Azalt</button>
+      <button onClick={() => dispatch(reset())}>Reset</button>
+      <button onClick={() => dispatch(incrementByAmount(10))}>
+        Increment by 10
+      </button>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>User List</h1>
+        <ul>
+          {data.map((user) => (
+            <li key={user.id}>
+              <div>Name: {user.name}</div>
+              <div>Email: {user.email}</div>
+            </li>
+          ))}
+        </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
-  )
+  );
 }
 
 export default App
