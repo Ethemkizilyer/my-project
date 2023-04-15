@@ -1,0 +1,15 @@
+[
+  { "name": "İspanyolca", "code": "es" },
+  { "name": "Türkçe", "code": "tr" },
+  { "name": "İngilizce", "code": "en" },
+  { "name": "Fransızca", "code": "fr" },
+
+  { "name": "Rusça", "code": "ru" },
+  { "name": "Hintçe", "code": "hi" },
+  { "name": "Bengalce", "code": "bn" },
+  { "name": "Arapça", "code": "ar" },
+  { "name": "Matarhi Dili", "code": "mr" },
+  { "name": "İtalyanca", "code": "it" },
+  { "name": "Almanca", "code": "nl" },
+  { "name": "Portekizce", "code": "pt" }
+]
