@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "./app/store";
+ import axios, { AxiosRequestConfig } from "axios";
 import {
   decrement,
   increment,
@@ -28,6 +29,39 @@ function App() {
   // const [count, setCount] = useState(0)
     const count = useSelector((state: RootState) => state.counter.value);
     const dispatch = useDispatch<AppDispatch>();
+
+ 
+
+  const translateText = async () => {
+    const requestData = {
+      text: "Merhaba Dünya!",
+      source_language: "tr",
+      target_language: "en",
+    };
+    const headers = {
+      "x-rapidapi-key": "00d41e70a2mshe65f808187f1a2cp117c6cjsn6b27cfecc6c3",
+      "x-rapidapi-host": "text-translator2.p.rapidapi.com",
+      "Content-Type": "application/json",
+    };
+
+    const config: AxiosRequestConfig = {
+      url: "https://text-translator2.p.rapidapi.com/translate",
+      method: "POST",
+      headers: headers,
+      data: requestData,
+    };
+
+    try {
+      const response = await axios(config);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(()=>{
+    translateText()
+  },[])
 
 
       const { isLoading, isError, data } = useQuery<User[]>(
