@@ -54,7 +54,7 @@ function App() {
       const response = await axios.post(url, params, { headers });
       setUsage(response.headers["x-ratelimit-characters-remaining"]);
       setCevir(response.data.data.translatedText);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       console.error(error);
     }
