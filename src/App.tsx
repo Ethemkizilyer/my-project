@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "./app/store";
- import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import {
   decrement,
   increment,
@@ -10,7 +10,7 @@ import {
   reset,
 } from "./features/counterSlice";
 import { useQuery } from "react-query";
-
+import languages from "./data/languages.json";
 interface User {
   id: number;
   name: string;
@@ -26,58 +26,132 @@ async function fetchUsers(): Promise<User[]> {
 }
 
 function App() {
-  // const [count, setCount] = useState(0)
-    const count = useSelector((state: RootState) => state.counter.value);
-    const dispatch = useDispatch<AppDispatch>();
+  const [usage, setUsage] = useState("?");
+  const [text, setText] = useState("");
+  const [cevir, setCevir] = useState("");
+  const [dil, setDil] = useState({ ilk: "tr", son: "en" });
 
- 
+  const apiKey = import.meta.env.VITE_API_KEY;
+
+  const count = useSelector((state: RootState) => state.counter.value);
+  const dispatch = useDispatch<AppDispatch>();
 
   const translateText = async () => {
-    const requestData = {
-      text: "Merhaba Dünya!",
-      source_language: "tr",
-      target_language: "en",
-    };
+    const url = "https://text-translator2.p.rapidapi.com/translate";
+
     const headers = {
-      "x-rapidapi-key": "00d41e70a2mshe65f808187f1a2cp117c6cjsn6b27cfecc6c3",
+      "x-rapidapi-key": apiKey,
       "x-rapidapi-host": "text-translator2.p.rapidapi.com",
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
     };
 
-    const config: AxiosRequestConfig = {
-      url: "https://text-translator2.p.rapidapi.com/translate",
-      method: "POST",
-      headers: headers,
-      data: requestData,
-    };
+    const params = new URLSearchParams();
+    params.append("source_language", `${dil.ilk}`);
+    params.append("target_language", `${dil.son}`);
+    params.append("text", `${text}`);
 
     try {
-      const response = await axios(config);
+      const response = await axios.post(url, params, { headers });
+      setUsage(response.headers["x-ratelimit-characters-remaining"]);
+      setCevir(response.data.data.translatedText);
       console.log(response.data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(()=>{
-    translateText()
-  },[])
+  const { isLoading, isError, data } = useQuery<User[]>("users", fetchUsers);
 
+  if (isLoading || !data) {
+    return <div>Loading users...</div>;
+  }
 
-      const { isLoading, isError, data } = useQuery<User[]>(
-        "users",
-        fetchUsers
-      );
+  if (isError) {
+    return <div>Error fetching users</div>;
+  }
 
-      if (isLoading || !data) {
-        return <div>Loading users...</div>;
-      }
+  const cevirt = () => {
+    translateText();
+  };
 
-      if (isError) {
-        return <div>Error fetching users</div>;
-      }
   return (
     <div className="App">
+      <p>Kalan kullanım: {usage} karakter</p>
+      <div style={{ marginBottom: "5rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            marginBottom: "1rem",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              gap: "10px",
+              marginBottom: "1rem",
+            }}
+          >
+            <select
+              name=""
+              id=""
+              value={dil.ilk}
+              onChange={(e) => setDil({ ...dil, ilk: e.target.value })}
+            >
+              {languages
+                .filter((item) => item.code != dil.son)
+                .map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {" "}
+                    {lang.name}
+                  </option>
+                ))}
+            </select>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            ></textarea>
+          </div>
+          <div style={{ fontSize: "2rem" }}>⇒</div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              marginBottom: "1rem",
+            }}
+          >
+            <select
+              name=""
+              id=""
+              onChange={(e) => setDil({ ...dil, son: e.target.value })}
+              value={dil.son}
+            >
+              {languages
+                .filter((item) => item.code != dil.ilk)
+                .map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {" "}
+                    {lang.name}
+                  </option>
+                ))}
+            </select>
+            <textarea
+              defaultValue={cevir}
+              // onChange={(e) => setText(e.target.value)}
+            ></textarea>
+          </div>
+        </div>
+        <button onClick={cevirt}>Çevir</button>
+      </div>
       <div>{count}</div>
       <button onClick={() => dispatch(increment())}>Artır</button>
       <button onClick={() => dispatch(decrement())}>Azalt</button>
@@ -100,4 +174,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
