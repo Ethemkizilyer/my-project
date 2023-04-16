@@ -31,6 +31,7 @@ function App() {
   const [cevir, setCevir] = useState("");
   const [dil, setDil] = useState({ ilk: "tr", son: "en" });
 
+
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const count = useSelector((state: RootState) => state.counter.value);
@@ -74,8 +75,18 @@ function App() {
     translateText();
   };
 
+
+
+    const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const { value } = event.target;
+      if (value.length <= 50) {
+        setText(event.target.value);
+      }
+    };
+
   return (
     <div className="App">
+  
       <p>Kalan kullanım: {usage} karakter</p>
       <div style={{ marginBottom: "5rem" }}>
         <div
@@ -112,10 +123,11 @@ function App() {
                   </option>
                 ))}
             </select>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            ></textarea>
+            <div style={{position:"relative"}}>
+            <textarea  value={text} onChange={handleChange}></textarea>
+            <span style={{position:"absolute",fontSize:"10px",bottom:"10px",right:"10px"}}>{`${text.length} / 50`}</span>
+            </div>
+         
           </div>
           <div style={{ fontSize: "2rem" }}>⇒</div>
 
@@ -144,10 +156,11 @@ function App() {
                   </option>
                 ))}
             </select>
+            <div>
             <textarea
               defaultValue={cevir}
               // onChange={(e) => setText(e.target.value)}
-            ></textarea>
+            ></textarea></div>
           </div>
         </div>
         <button onClick={cevirt}>Çevir</button>
