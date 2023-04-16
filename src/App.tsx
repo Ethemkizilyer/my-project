@@ -11,6 +11,7 @@ import {
 } from "./features/counterSlice";
 import { useQuery } from "react-query";
 import languages from "./data/languages.json";
+import { translateText } from "./features/langSlice";
 interface User {
   id: number;
   name: string;
@@ -26,40 +27,17 @@ async function fetchUsers(): Promise<User[]> {
 }
 
 function App() {
-  const [usage, setUsage] = useState("?");
-  const [text, setText] = useState("");
-  const [cevir, setCevir] = useState("");
-  const [dil, setDil] = useState({ ilk: "tr", son: "en" });
-
+  const [text, setText] = useState<string>(""); 
+  const [dil, setDil] = useState<{ ilk: string; son: string }>({
+    ilk: "tr",
+    son: "en",
+  });
 
   const apiKey = import.meta.env.VITE_API_KEY;
 
   const count = useSelector((state: RootState) => state.counter.value);
+  const { karakter, sonuc } = useSelector((state: RootState) => state.text);
   const dispatch = useDispatch<AppDispatch>();
-
-  const translateText = async () => {
-    const url = "https://text-translator2.p.rapidapi.com/translate";
-
-    const headers = {
-      "x-rapidapi-key": "00d41e70a2mshe65f808187f1a2cp117c6cjsn6b27cfecc6c3",
-      "x-rapidapi-host": "text-translator2.p.rapidapi.com",
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    const params = new URLSearchParams();
-    params.append("source_language", `${dil.ilk}`);
-    params.append("target_language", `${dil.son}`);
-    params.append("text", `${text}`);
-
-    try {
-      const response = await axios.post(url, params, { headers });
-      setUsage(response.headers["x-ratelimit-characters-remaining"]);
-      setCevir(response.data.data.translatedText);
-      // console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const { isLoading, isError, data } = useQuery<User[]>("users", fetchUsers);
 
@@ -72,22 +50,19 @@ function App() {
   }
 
   const cevirt = () => {
-    translateText();
+    dispatch(translateText({ dil, text }));
   };
 
-
-
-    const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const { value } = event.target;
-      if (value.length <= 50) {
-        setText(event.target.value);
-      }
-    };
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { value } = event.target;
+    if (value.length <= 50) {
+      setText(event.target.value);
+    }
+  };
 
   return (
     <div className="App">
-  
-      <p>Kalan kullanım: {usage} karakter</p>
+      <p>Kalan kullanım: {karakter} karakter</p>
       <div style={{ marginBottom: "5rem" }}>
         <div
           style={{
@@ -123,11 +98,17 @@ function App() {
                   </option>
                 ))}
             </select>
-            <div style={{position:"relative"}}>
-            <textarea  value={text} onChange={handleChange}></textarea>
-            <span style={{position:"absolute",fontSize:"10px",bottom:"10px",right:"10px"}}>{`${text.length} / 50`}</span>
+            <div style={{ position: "relative" }}>
+              <textarea value={text} onChange={handleChange}></textarea>
+              <span
+                style={{
+                  position: "absolute",
+                  fontSize: "10px",
+                  bottom: "10px",
+                  right: "10px",
+                }}
+              >{`${text.length} / 50`}</span>
             </div>
-         
           </div>
           <div style={{ fontSize: "2rem" }}>⇒</div>
 
@@ -157,10 +138,11 @@ function App() {
                 ))}
             </select>
             <div>
-            <textarea
-              defaultValue={cevir}
-              // onChange={(e) => setText(e.target.value)}
-            ></textarea></div>
+              <textarea
+                defaultValue={sonuc}
+                // onChange={(e) => setText(e.target.value)}
+              ></textarea>
+            </div>
           </div>
         </div>
         <button onClick={cevirt}>Çevir</button>

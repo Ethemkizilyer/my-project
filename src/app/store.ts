@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "../features/counterSlice";
+import textReducer from "../features/langSlice";
 import storage from "redux-persist/lib/storage";
 import {
   persistStore,
@@ -22,6 +23,7 @@ const persistedReducer = persistReducer(persistConfig, counterReducer);
 export const store = configureStore({
   reducer: {
     counter: persistedReducer,
+    text:textReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
