@@ -40,7 +40,7 @@ function App() {
     const url = "https://text-translator2.p.rapidapi.com/translate";
 
     const headers = {
-      "x-rapidapi-key": apiKey,
+      "x-rapidapi-key": "00d41e70a2mshe65f808187f1a2cp117c6cjsn6b27cfecc6c3",
       "x-rapidapi-host": "text-translator2.p.rapidapi.com",
       "Content-Type": "application/x-www-form-urlencoded",
     };
